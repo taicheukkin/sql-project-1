@@ -1,0 +1,130 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkDulplicate`(tableName VARCHAR(50),schemaName VARCHAR(50))
+BEGIN
+DECLARE done int DEFAULT false;
+DECLARE temp_column VARCHAR(50);
+
+DECLARE column_cursor CURSOR FOR
+SELECT COLUMN_NAME FROM information_schema.COLUMNS
+WHERE TABLE_NAME =tableName AND TABLE_SCHEMA=schemaName;
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=True;
+
+OPEN column_cursor;
+read_loop:LOOP
+FETCH column_cursor INTO temp_column;
+IF done THEN
+LEAVE read_loop;
+END IF;
+SET @temp_query= CONCAT('SELECT * FROM (SELECT *, row_number() over(PARTITION BY ',temp_column,
+' ORDER BY ',temp_column,') AS rn_',temp_column,' FROM ',tableName,')cd WHERE rn_',temp_column,'>1');
+PREPARE stmt FROM @temp_query;
+EXECUTE stmt;
+END LOOP;
+CLOSE column_cursor;
+END
+
+
+
+
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkEmptyValue`(tableName VARCHAR(50),schemaName VARCHAR(50))
+BEGIN
+DECLARE done int DEFAULT false;
+DECLARE temp_column VARCHAR(50);
+
+DECLARE column_cursor CURSOR FOR
+SELECT COLUMN_NAME FROM information_schema.COLUMNS
+WHERE TABLE_NAME =tableName AND TABLE_SCHEMA=schemaName;
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=True;
+
+OPEN column_cursor;
+read_loop:LOOP
+FETCH column_cursor INTO temp_column;
+IF done THEN
+LEAVE read_loop;
+END IF;
+SET @temp_query= CONCAT('SELECT * FROM ',schemaName,".",TableName,' WHERE length(',temp_column,')=0');
+PREPARE stmt FROM @temp_query;
+EXECUTE stmt;
+END LOOP;
+CLOSE column_cursor;
+END
+
+
+
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `MarkEmptyValue`(tableName VARCHAR(50),schemaName VARCHAR(50))
+BEGIN
+DECLARE done int DEFAULT false;
+DECLARE temp_column VARCHAR(50);
+
+DECLARE column_cursor CURSOR FOR
+SELECT COLUMN_NAME FROM information_schema.COLUMNS
+WHERE TABLE_NAME =tableName AND TABLE_SCHEMA=schemaName;
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=True;
+
+OPEN column_cursor;
+read_loop:LOOP
+FETCH column_cursor INTO temp_column;
+IF done THEN
+LEAVE read_loop;
+END IF;
+SET @temp_query= CONCAT('UPDATE ',TableName,' SET ',temp_column,'= \'NA\' WHERE length(',temp_column,')=0');
+PREPARE stmt FROM @temp_query;
+EXECUTE stmt;
+END LOOP;
+CLOSE column_cursor;
+END
+
+
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkNULLlValue`(tableName VARCHAR(50),schemaName VARCHAR(50))
+Begin 
+DECLARE done int DEFAULT false;
+DECLARE temp_column VARCHAR(50);
+
+DECLARE column_cursor CURSOR FOR
+SELECT COLUMN_NAME FROM information_schema.COLUMNS
+WHERE TABLE_NAME =tableName AND TABLE_SCHEMA=schemaName;
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=True;
+
+OPEN column_cursor;
+read_loop:LOOP
+FETCH column_cursor INTO temp_column;
+IF done THEN
+LEAVE read_loop;
+END IF;
+
+SET @temp_query= CONCAT('SELECT * FROM ',schemaName,".",TableName,' WHERE ',temp_column,' IS NULL');
+PREPARE stmt FROM @temp_query;
+EXECUTE stmt;
+END LOOP;
+CLOSE column_cursor;
+END
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Remove_Whitespace`(tableName VARCHAR(50),schemaName VARCHAR(50))
+BEGIN
+DECLARE done int DEFAULT false;
+DECLARE temp_column VARCHAR(50);
+
+DECLARE column_cursor CURSOR FOR
+SELECT COLUMN_NAME FROM information_schema.COLUMNS
+WHERE TABLE_NAME =tableName AND TABLE_SCHEMA=schemaName;
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=True;
+
+OPEN column_cursor;
+read_loop:LOOP
+FETCH column_cursor INTO temp_column;
+IF done THEN
+LEAVE read_loop;
+END IF;
+SET @temp_query= CONCAT('UPDATE ',schemaName,'.',tableName,' SET ',temp_column,'=trim(',temp_column,')');
+PREPARE stmt FROM @temp_query;
+EXECUTE stmt;
+END LOOP;
+CLOSE column_cursor;
+END
