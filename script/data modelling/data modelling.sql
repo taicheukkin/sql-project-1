@@ -70,21 +70,36 @@ SELECT
       ON i.prd_key1=c.ID;
 
 CREATE TABLE `fact_sales` AS
-SELECT sls_ord_num AS order_number, 
-sls_prd_key AS product_key, 
-row_number()over(PARTITION BY sls_prd_key,sls_ord_num
-			     ORDER BY sls_prd_key,sls_ord_num) AS surrogate_key,
-sls_cust_id AS customer_id, 
-sls_order_dt AS order_date, 
-sls_ship_dt AS ship_date, 
-sls_due_dt AS d_date, 
-sls_sales AS sales, 
-sls_quantity AS quantity, 
-sls_price AS price
-FROM data_warehouse.sales_details;
- 
-## CREATE surrogate key for prd_key, order_num
+	SELECT sls_ord_num AS order_number, 
+	s.sls_prd_key AS product_key, 
+	s.sls_cust_id AS customer_id, 
+	s.sls_order_dt AS order_date, 
+	s.sls_ship_dt AS ship_date, 
+	s.sls_due_dt AS d_date, 
+	s.sls_sales AS sales, 
+	s.sls_quantity AS quantity, 
+	s.sls_price AS price
+	p.product_id AS product_id	
+	FROM data_warehouse.sales_details s
+	left join data_warehouse.product_info p
+	ON s.product_key=p.product_key;
+
+ALTER dim_customer
+MODIFY COLUMN customer_id PRIMARY KEY；
+
+ALTER dim_product
+MODIFY COLUMN product_id PRIMARY KEY；
 
 
-      
+ALTER fact_sales
+MODIFY COLUMN product_id FOREIGN KEY REFERENCING dim product(product_id),
+MODIFY COLUMN customer_id FOREIGN KEY REFERENCING dim_customer(customer_id);
+
+
+
+
+
+
+
+
       
