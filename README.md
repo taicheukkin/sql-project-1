@@ -62,17 +62,18 @@ These 3 tables was combined from cleaned table by sql join, stored in sales_sche
 |location             |cust_info             |dim_customer  |
 |product_info        |product_category      |dim_product  |
 |product_category    |product_info          |dim_product  |
-|sales_details       |not applicable        |fact_sales|  
+|sales_details       |product_info          |fact_sales|  
 |cust_demographic   |cust_info             |dim_customer|    
 |cust_info           |cust_demographic and location|dim_customer|  
 
 The data model was created in ERR Program in MYSQL server
 
-![image](https://github.com/user-attachments/assets/556de1f2-872f-45b1-b357-1385d0b073da)
+<img width="1107" height="522" alt="image" src="https://github.com/user-attachments/assets/fe415dab-b4d8-49f6-b6f9-d2e7a09e1712" />
+
 
 The relationship between dim_customer and fact_sales is one-to-many with customer_id as primary key in dim_customer.
 
-The relationship between dim_product and fact_sales is one-to-many with product_key as primary key in dim_product .
+The relationship between dim_product and fact_sales is one-to-many with product_id as primary key in dim_product .
 
 
 
