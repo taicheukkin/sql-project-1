@@ -78,24 +78,25 @@ CREATE TABLE `fact_sales` AS
 	s.sls_due_dt AS d_date, 
 	s.sls_sales AS sales, 
 	s.sls_quantity AS quantity, 
-	s.sls_price AS price
+	s.sls_price AS price,
 	p.product_id AS product_id	
 	FROM data_warehouse.sales_details s
-	left join data_warehouse.product_info p
-	ON s.product_key=p.product_key;
+	left join `dim.product`p
+	ON s.sls_prd_key =p.cat_id;
 
-ALTER dim_customer
-MODIFY COLUMN customer_id PRIMARY KEY；
-
-ALTER dim_product
-MODIFY COLUMN product_id PRIMARY KEY；
+ALTER TABLE `dim.customer`
+ADD PRIMARY KEY(customer_id);
 
 
-ALTER fact_sales
-MODIFY COLUMN product_id FOREIGN KEY REFERENCING dim product(product_id),
-MODIFY COLUMN customer_id FOREIGN KEY REFERENCING dim_customer(customer_id);
 
+ALTER TABLE`dim.product`
+ADD PRIMARY KEY (product_id); 
 
+# create relationship between table
+ALTER TABLE fact_sales
+ADD FOREIGN KEY (product_id) REFERENCES `dim.product`(product_id),
+ADD FOREIGN KEY (customer_id) REFERENCES `dim.customer`(customer_id);
+ADD PRIMARY KEY (product_key, order_number);       
 
 
 
