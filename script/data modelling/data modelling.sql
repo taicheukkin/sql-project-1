@@ -84,19 +84,37 @@ CREATE TABLE `fact_sales` AS
 	left join `dim.product`p
 	ON s.sls_prd_key =p.cat_id;
 
+
 ALTER TABLE `dim.customer`
+MODIFY COLUMN customer_id int NOT NULL,
 ADD PRIMARY KEY(customer_id);
 
+      
 
 
 ALTER TABLE`dim.product`
 ADD PRIMARY KEY (product_id); 
+DELETE FROM `dim.customer` WHERE customer_id=NULL;
 
-# create relationship between table
+
+## create relationship between table
 ALTER TABLE fact_sales
-ADD FOREIGN KEY (product_id) REFERENCES `dim.product`(product_id),
+ADD FOREIGN KEY (product_id) REFERENCES `dim.product`(product_id);
+
+
+SET SQL_SAFE_UPDATES = 0;
+
+## the customer id in dim.customer is unmatched with cutromer id in fact sales
+UPDATE fact_sales
+	SET	customer_id= CASE
+        WHEN customer_id>(SELECT MAX(customer_id) FROM`dim.customer`)
+	    THEN NULL
+        ELSE customer_id
+        END;
+                 
+ALTER TABLE fact_sales
+MODIFY COLUMN customer_id int NULL,
 ADD FOREIGN KEY (customer_id) REFERENCES `dim.customer`(customer_id);
-ADD PRIMARY KEY (product_key, order_number);       
 
 
 
